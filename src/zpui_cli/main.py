@@ -1,3 +1,4 @@
+from time import sleep
 import argparse
 import signal
 import os
@@ -46,6 +47,8 @@ def cli():
     if command == "threads":
         os.kill(pid, signal.SIGUSR1)
     elif command == "fg":
+        # working around a bug where an Enter press accidentally re-minimizes ZPUI
+        sleep(1)
         os.kill(pid, signal.SIGCONT)
     elif command == "rc":
         os.kill(pid, signal.SIGUSR2)
