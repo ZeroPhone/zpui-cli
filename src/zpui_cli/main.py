@@ -26,6 +26,7 @@ def cli():
     restart_p = subparsers.add_parser('restart', help='Restart system-wide ZPUI instance (using systemctl)')
     start_p = subparsers.add_parser('start', help='Start system-wide ZPUI instance (using systemctl)')
     stop_p = subparsers.add_parser('stop', help='Stop system-wide ZPUI instance (using systemctl)')
+    status_p = subparsers.add_parser('status', help='See status of system-wide ZPUI instance (using systemctl)')
     log_p = subparsers.add_parser('log', help='Show logs from the system-wide ZPUI instance (using journalctl)')
     fg_p = subparsers.add_parser('fg', help='Bring system-wide ZPUI instance to foreground (after suspend)')
     threads_p = subparsers.add_parser('threads', help='Make system-wide ZPUI instance print current state of all its threads (into standard output)')
@@ -68,7 +69,7 @@ def cli():
             os.kill(pid, signal.SIGUSR2) # sending signal to ZPUI
             sleep(0.1) # small delay just in case
             rconsole.interact(port=9377)
-    elif command in ["start", "stop", "restart"]:
+    elif command in ["start", "stop", "restart", "status"]:
         print(f"Trying to run `systemctl {command} {service_file}`")
         os.system(f"systemctl {command} {service_file}")
     elif command == "log":
