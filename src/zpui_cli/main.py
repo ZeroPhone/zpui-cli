@@ -1,6 +1,8 @@
 from time import sleep
+import traceback
 import argparse
 import signal
+import sys
 import os
 
 pid_file="/run/zpui.pid"
@@ -35,30 +37,43 @@ def cli():
             with open(pid_file, 'r') as pid_file_f:
                 pid = pid_file_f.read().strip()
         except:
-            with open(backup_pid_file, 'r') as backup_pid_file_f:
-                pid = backup_pid_file_f.read().strip()
+            try:
+                with open(backup_pid_file, 'r') as backup_pid_file_f:
+                    pid = backup_pid_file_f.read().strip()
+            except:
+                print(f"Failed to read both PID files: {pid_file} and {backup_pid_file}!")
+                traceback.print_exc()
+                sys.exit(1)
     else:
-        print("Getting PID from args")
         pid = args.pid
     pid = int(pid)
     command = args.command
-    print(command, repr(pid))
+    print(f"Command: {command}, PID: {repr(pid)}")
     # now seeing which command got called
     if command == "threads":
         os.kill(pid, signal.SIGUSR1)
     elif command == "fg":
-        # working around a bug where an Enter press accidentally re-minimizes ZPUI
+        # working around a bug where an ongoing Enter press accidentally re-minimizes ZPUI
         sleep(1)
         os.kill(pid, signal.SIGCONT)
     elif command == "rc":
-        os.kill(pid, signal.SIGUSR2)
+        try:
+            from rfoo.utils import rconsole
+        except:
+            print("Rfoo not installed! After installing rfoo, you might need to restart ZPUI before it's picked up")
+            print("Learn more at:")
+            print("https://zpui.readthedocs.io/en/latest/hacking_ui.html#attaching-to-the-zpui-instance")
+            sys.exit(2)
+        else:
+            os.kill(pid, signal.SIGUSR2) # sending signal to ZPUI
+            sleep(0.1) # small delay just in case
+            rconsole.interact(port=9377)
     elif command in ["start", "stop", "restart"]:
-        print(f"systemctl {command} {service_file}")
+        print(f"Trying to run `systemctl {command} {service_file}`")
         os.system(f"systemctl {command} {service_file}")
     elif command == "log":
-        print(f"journalctl -fu {service_file}")
+        print(f"Trying to run `journalctl -fu {service_file}`")
         os.system(f"journalctl -fu {service_file}")
-    #breakpoint()
 
 if __name__ == "__main__":
     cli()
