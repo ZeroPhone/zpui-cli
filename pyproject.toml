@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "zpui-cli"
+version = "0.1"
+authors = [
+  { name="Arya (CRImier)", email="arya.voronova@gmail.com" },
+]
+description = "ZPUI commandline"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.scripts]
+zpuic = "zpui_cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/ZeroPhone/zpui-cli"
+Issues = "https://github.com/ZeroPhone/zpui-cli/issues"
